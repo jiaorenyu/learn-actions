@@ -34,3 +34,11 @@ jobs:
         run: |
           echo Add other actions to build,
           echo test, and deploy your project.
+
+      - name: get changed files
+        id: get_changes
+        uses: tj-actions/changed-files@v11.5
+        with:
+          separator: ","
+          files: .(yaml)$
+          base_sha: "a80e1200"
