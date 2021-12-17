@@ -1,0 +1,71 @@
+type: Dataset
+source: glue
+database: datalake
+name: databricks_usage_ods
+owner:
+  - renkai@tubi.tv
+team:
+  - data@tubi.tv
+description: |
+  This table contains the databricks original bill board, regually we download the billing report monthly,
+  then append to this table.
+
+  the schema would match [databricks csv schema](https://docs.databricks.com/administration-guide/account-settings/usage-analysis.html#csv-file-schema)
+  except for some data type changes
+location: s3://tubi-datalake-staging/delta/datalake/databricks_usage_ods
+partitionKeys:
+  - month
+deprecated: true
+scheduler: 5 4 * * *
+sla:
+  latency: 1 day
+
+data_schema:
+  properties:
+    - name: workspaceId
+      type: string
+      description: ID of the workspace. eg. `1234567890123456`
+    - name: timestamp
+      type: string
+      description: End of the hour for the provided usage. eg. `2019-02-22T09:59:59Z`
+    - name: clusterId
+      type: string
+      description: ID of the cluster. eg.`0405-020048-brawl507`
+    - name: clusterName
+      type: string
+      description: User-provided name for the cluster. eg. `Shared Autoscaling`
+    - name: clusterNodeType
+      type: string
+      description: Instance type of the cluster. eg. `m4.16xlarge`
+    - name: clusterOwnerUserId
+      type: string
+      description: ID of the user who created the cluster. eg. `12345678901234`
+    - name: clusterCustomTag
+      type: string
+      description:
+        Custom tags associated with the cluster during this hour.
+        eg `{"dept":"mktg","op_phase":"dev"}`
+    - name: sku
+      type: string
+      description:
+        Billing SKU. See the [Billing SKUs table](https://docs.databricks.com/administration-guide/account-settings/usage-analysis.html#billing-sku) for a list of values.
+        eg. `STANDARD_ALL_PURPOSE_COMPUTE`
+    - name: dbus
+      type: double
+      description: Number of DBUs used by the user during this hour. eg. `1.2345`
+    - name: machineHours
+      type: double
+      description: Total number of machine hours used by all containers in the cluster. eg. `12.345`
+    - name: clusterOwnerUserName
+      type: string
+      description: Username (email) of the user who created the cluster. eg. `user@yourcompany.com`
+    - name: tags
+      type: string
+      description:
+        Default and custom cluster tags, and default and custom instance pool tags (if applicable) associated with the cluster during this hour.
+        See [Cluster tags] and [Pool tags].This is a superset of the clusterCustomTags column.
+
+        eg. `"{""dept"":""mktg"",""op_phase"":""dev"", ""Vendor"":""Databricks"", ""ClusterId"":""0405-020048-brawl507"", ""Creator"":""user@yourcompany.com""}"`
+    - name: month
+      type: string
+      description: the month of the bill month, format YYYMM, eg 202109
